@@ -1,0 +1,13 @@
+{
+  "account": {
+    "id": "XXXZA",
+    "userId": "stoc",
+    "pass": "???",
+    "otp": "xxxx",
+    "sellK": 95,
+    "buyK": 10,
+    "unit": 5,
+    "unitNum": 200,
+    "longLen": 1
+  }
+}
