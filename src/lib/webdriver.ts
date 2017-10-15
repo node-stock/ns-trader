@@ -42,8 +42,7 @@ export class WebDriver {
       .url('https://www.rakuten-sec.co.jp/')
       .setValue('#form-login-id', acc.id)
       .setValue('#form-login-pass', acc.pass)
-      .isVisible('.s1-form-login__btn').then(res => console.log('.s1-form-login__btn:', res))
-      .click('.s1-form-login__btn')
+      .execute('document.getElementsByClassName("s1-form-login__btn")[0].click()')
       .waitForExist('#str-main-inner', 1000)
       // XXX　様のホームページ
       .getText('.mbodyb').then((res: string) => {
@@ -66,8 +65,7 @@ export class WebDriver {
         // 買い注文(信用取引)
         .click('#ord2').click('#jp-stk-top-btn-ord-mgn-new')
     } else {
-      await this.client.click('#str-main-inner > table > tbody > tr > td > form' +
-        ' > div.box-tab-search-01 > div > ul > li.first-child.active > a')
+      await this.client.execute('$("div.box-tab-search-01:eq(0) .first-child:eq(0)>a")[0].click()');
     }
     // 銘柄名･銘柄コード
     await this.client.setValue('#ss-02', symbol || this.symbol)
@@ -154,6 +152,8 @@ export class WebDriver {
     // 返済注文(1:新規注文,2:返済注文,3:現引現渡注文,4:注文照会・訂正・取消)
     // 返済注文按钮
     const elements = await this.client.click('.nav-tab-01 li:nth-child(2)')
+      .waitForExist('#special_table .tbl-data-01>tbody>tr:last-child img[src="/member/images/btn-repayment-02.gif"]', 5000)
+      .isVisible('.s1-form-login__btn').then(res => console.log('.s1-form-login__btn:', res))
       .click('#special_table .tbl-data-01>tbody>tr:last-child img[src="/member/images/btn-repayment-02.gif"]')
       .elements('input[name^="chkRepay"]');
     if (!elements.value) {
@@ -199,14 +199,15 @@ export class WebDriver {
   async marginCancel(cancelOrder: types.Cancel) {
     Log.system.info(`信用订单取消[启动]: ${util.inspect(cancelOrder, false, null)}`);
     const elements = await this.client.click('.nav-tab-01 li:nth-child(4)')
-      .click('#special_table .tbl-data-01>tbody>tr:last-child img[src="/member/images/btn-repayment-02.gif"]')
-      .elements('input[name^="chkRepay"]');
+      // 检索取消按钮图标
+      .elements('img[src="/member/images/i_arrow_08.gif"]');
     if (!elements.value) {
       Log.system.info(`无可取消订单，信用订单取消[终了]`);
       // 返回信用界面
       return this.toMargin('', true);
     }
-    await this.client.click('a=取消') // 取消
+    await this.client.execute('$(".tbl-data-padding3 .mgn-order_list-font-size'
+      + ' img[src=\'/member/images/i_arrow_08.gif\']:last~a")[0].click()') // 取消
       .setValue('*[type="password"]', acc.otp)
       // 取消注文
       .click('#sbm');

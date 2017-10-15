@@ -32,7 +32,7 @@ class WebTrader extends Trader {
     // 信用交易
     if (order.tradeType === types.TradeType.Margin) {
       this.webDriver.marginBuy(<types.LimitOrder>order).catch((e: Error) => {
-        Log.system.error(`买入多单失败：${e.stack}`);
+        Log.system.error(`买入多单异常：${e.stack}`);
       });
     }
   }
@@ -42,7 +42,7 @@ class WebTrader extends Trader {
     // 信用交易
     if (order.tradeType === types.TradeType.Margin) {
       this.webDriver.marginSell(<types.LimitOrder>order).catch((e: Error) => {
-        Log.system.error(`卖出单失败：${e.stack}`);
+        Log.system.error(`卖出多单异常：${e.stack}`);
       });
     }
   }
@@ -52,7 +52,7 @@ class WebTrader extends Trader {
     // 信用交易
     if (cancelOrder.tradeType === types.TradeType.Margin) {
       this.webDriver.marginCancel(cancelOrder).catch((e: Error) => {
-        Log.system.error(`撤销订单失败：${e.stack}`);
+        Log.system.error(`撤销订单异常：${e.stack}`);
       });
     }
   }
