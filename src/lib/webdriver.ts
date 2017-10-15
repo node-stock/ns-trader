@@ -26,11 +26,11 @@ export class WebDriver {
     Log.system.info('初期化WebDriver[启动]');
     await this.client.init();
     await this.login();
-    await this.toMargin();
     this.autoRefresh = setInterval(() => {
       this.client.refresh();
     }, moment.duration(15, 'm').asMilliseconds());
     Log.system.info('初期化WebDriver[终了]');
+    return this.toMargin();
   }
 
   /**
@@ -38,7 +38,7 @@ export class WebDriver {
    */
   async login() {
     Log.system.info('登录乐天账户[启动]');
-    const client = await this.client
+    return this.client
       .url('https://www.rakuten-sec.co.jp/')
       .setValue('#form-login-id', acc.id)
       .setValue('#form-login-pass', acc.pass)
@@ -50,9 +50,9 @@ export class WebDriver {
       }).pause(500)
       // 自動ログアウトoff
       .click('#changeAutoLogout').pause(500)
-      .alertAccept();
-    Log.system.info('登录乐天账户[终了]');
-    return client;
+      .alertAccept().then((res) => {
+        Log.system.info('登录乐天账户[终了]');
+      });
   }
 
   async toMargin(symbol?: string, isChangeTab?: boolean) {
@@ -68,7 +68,7 @@ export class WebDriver {
       await this.client.execute('$("div.box-tab-search-01:eq(0) .first-child:eq(0)>a")[0].click()');
     }
     // 銘柄名･銘柄コード
-    await this.client.setValue('#ss-02', symbol || this.symbol)
+    return this.client.setValue('#ss-02', symbol || this.symbol)
       // 検索
       .click('.img-ipad')
       .isVisible('#autoUpdateButtonOn').then(res => {
@@ -76,8 +76,8 @@ export class WebDriver {
         if (res) {
           this.client.click('#autoUpdateButtonOn');
         }
+        Log.system.info('跳转信用交易界面[终了]');
       });
-    Log.system.info('跳转信用交易界面[终了]');
   }
 
   toMarginSach() {
