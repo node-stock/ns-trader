@@ -1,8 +1,8 @@
-import { WebDriver } from './webdriver';
+import { WebTrader } from './trader';
 import * as types from './types';
 import * as assert from 'power-assert';
 
-let wd: WebDriver;
+let trader: WebTrader;
 const order: types.LimitOrder = {
   eventId: 1234,
   eventType: types.EventType.Order,
@@ -10,26 +10,26 @@ const order: types.LimitOrder = {
   orderType: types.OrderType.Limit,
   side: types.OrderSide.Buy,
   symbol: '6553',
-  price: 2200,
+  price: 2100,
   amount: 100
 };
 
 const testInit = async (done: () => void) => {
 
-  wd = new WebDriver(order.symbol);
-  await wd.init();
+  trader = new WebTrader(order.symbol);
+  await trader.init();
   assert(true);
   done();
 }
 
 const testMarginBuy = async (done: () => void) => {
-  await wd.marginBuy(order);
+  await trader.buy(order);
   done();
 }
 
 const testMarginSell = async (done: () => void) => {
   order.side = types.OrderSide.Sell;
-  await wd.marginSell(order);
+  await trader.sell(order);
   done();
 }
 
@@ -40,12 +40,12 @@ const testMarginCancel = async (done: () => void) => {
     targetId: 123,
     eventId: 124
   };
-  await wd.marginCancel(cancelOrder);
-  await wd.end();
+  await trader.cancel(cancelOrder);
+  trader.end();
   done();
 }
 
-describe('WebDriver测试', () => {
+describe('WebTrader测试', () => {
   it('测试初始化', function (done) {
     this.timeout(300000);
     testInit(done);

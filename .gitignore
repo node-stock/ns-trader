@@ -60,3 +60,4 @@ typings/
 dist
 config/config.dev.json
 .history
+.vscode

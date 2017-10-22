@@ -30,7 +30,7 @@ export class WebDriver {
       this.client.refresh();
     }, moment.duration(15, 'm').asMilliseconds());
     Log.system.info('初期化WebDriver[终了]');
-    return this.toMargin();
+    await this.toMargin();
   }
 
   /**
@@ -38,63 +38,62 @@ export class WebDriver {
    */
   async login() {
     Log.system.info('登录乐天账户[启动]');
-    return this.client
-      .url('https://www.rakuten-sec.co.jp/')
-      .setValue('#form-login-id', acc.id)
-      .setValue('#form-login-pass', acc.pass)
-      .execute('document.getElementsByClassName("s1-form-login__btn")[0].click()')
-      .waitForExist('#str-main-inner', 1000)
-      // XXX　様のホームページ
-      .getText('.mbodyb').then((res: string) => {
-        console.log(res);
-      }).pause(500)
-      // 自動ログアウトoff
-      .click('#changeAutoLogout').pause(500)
-      .alertAccept().then((res) => {
-        Log.system.info('登录乐天账户[终了]');
-      });
+    await this.client.url('https://www.rakuten-sec.co.jp/');
+    await this.client.setValue('#form-login-id', acc.id)
+    await this.client.setValue('#form-login-pass', acc.pass);;
+    await this.client.execute('document.getElementsByClassName("s1-form-login__btn")[0].click()');
+    await this.client.waitForExist('#str-main-inner', 1000);
+    // XXX　様のホームページ
+    const res = await this.client.getText('.mbodyb');
+    console.log(res);
+    // 自動ログアウトoff
+    await this.client.click('#changeAutoLogout');
+    await this.client.alertAccept();
+    Log.system.info('登录乐天账户[终了]');
   }
 
   async toMargin(symbol?: string, isChangeTab?: boolean) {
     Log.system.info('跳转信用交易界面[启动]');
     // 不为同页面tab切换时
     if (!isChangeTab) {
-      await this.client.waitForExist('#gmenu_domestic_stock', 5000)
-        // 国内株式
-        .click('#gmenu_domestic_stock')
-        // 買い注文(信用取引)
-        .click('#ord2').click('#jp-stk-top-btn-ord-mgn-new')
+      await this.client.waitForExist('#gmenu_domestic_stock', 5000);
+      // 国内株式
+      await this.client.click('#gmenu_domestic_stock');
+      // 買い注文(信用取引)
+      await this.client.click('#ord2');
+      await this.client.click('#jp-stk-top-btn-ord-mgn-new');
     } else {
       await this.client.execute('$("div.box-tab-search-01:eq(0) .first-child:eq(0)>a")[0].click()');
     }
     // 銘柄名･銘柄コード
-    return this.client.setValue('#ss-02', symbol || this.symbol)
-      // 検索
-      .click('.img-ipad')
-      .isVisible('#autoUpdateButtonOn').then(res => {
-        // 股价自动更新未激活时，自动激活
-        if (res) {
-          this.client.click('#autoUpdateButtonOn');
-        }
-        Log.system.info('跳转信用交易界面[终了]');
-      });
+    await this.client.setValue('#ss-02', symbol || this.symbol);
+    // 検索
+    await this.client.click('.img-ipad');
+    const res = await this.client.isVisible('#autoUpdateButtonOn');
+
+    // 股价自动更新未激活时，自动激活
+    if (res) {
+      await this.client.click('#autoUpdateButtonOn');
+    }
+    Log.system.info('跳转信用交易界面[终了]');
   }
 
-  toMarginSach() {
-    return this.client.waitForExist('#gmenu_domestic_stock', 5000)
-      .click('#gmenu_domestic_stock') // 国内株式
-      // 注文
-      .click('#nav-sub-menu-order-arrow')
-      .click('span=信用取引')
-      // 注文照会・訂正・取消
-      .click('.nav-tab-01 li:nth-last-child(1)')
-      // 「表示する」 检索
-      .click('.ord_jp_req_search input[src="/member/images/btn-disp.png"]')
-      // 取消
-      .click('a=取消')
-      .setValue('*[type="password"]', acc.otp)
-      // 取消注文
-      .click('#sbm')
+  async toMarginSach() {
+    await this.client.waitForExist('#gmenu_domestic_stock', 5000);
+    // 国内株式
+    await this.client.click('#gmenu_domestic_stock');
+    // 注文
+    await this.client.click('#nav-sub-menu-order-arrow');
+    await this.client.click('span=信用取引');
+    // 注文照会・訂正・取消
+    await this.client.click('.nav-tab-01 li:nth-last-child(1)');
+    // 「表示する」 检索
+    await this.client.click('.ord_jp_req_search input[src="/member/images/btn-disp.png"]');
+    // 取消
+    await this.client.click('a=取消');
+    await this.client.setValue('*[type="password"]', acc.otp);
+    // 取消注文
+    await this.client.click('#sbm');
     /*// 銘柄名･銘柄コード
     .setValue('#ss-02', opt.code)
     // 検索
@@ -104,62 +103,67 @@ export class WebDriver {
 
   }
 
-  spotBuy(order: types.LimitOrder) {
-    return this.client.waitForExist('#gmenu_domestic_stock', 5000)
-      // 国内株式
-      .click('#gmenu_domestic_stock')
-      // 買い注文(現物)
-      .click('#ord1').click('#jp-stk-top-btn-ord-spot-buy')
-      // 銘柄名･銘柄コード
-      .setValue('#ss-02', order.symbol)
-      // 検索
-      .click('.img-ipad')
-      // 股价自动更新
-      .click('#autoUpdateButtonOn')
-      // 数量( 株/口)
-      .setValue('#orderValue', order.amount)
-      // 価格
-      .setValue('#marketOrderPrice', order.price)
-      .setValue('*[type="password"]', acc.otp)
-      // 確認画面を省略する
-      .click('#ormit_checkbox')
-      // 注文
-      .click('#ormit_sbm');
+  async spotBuy(order: types.LimitOrder) {
+    await this.client.waitForExist('#gmenu_domestic_stock', 5000);
+    // 国内株式
+    await this.client.click('#gmenu_domestic_stock');
+    // 買い注文(現物)
+    await this.client.click('#ord1').click('#jp-stk-top-btn-ord-spot-buy');
+    // 銘柄名･銘柄コード
+    await this.client.setValue('#ss-02', order.symbol);
+    // 検索
+    await this.client.click('.img-ipad');
+    // 股价自动更新
+    await this.client.click('#autoUpdateButtonOn');
+    // 数量( 株/口)
+    await this.client.setValue('#orderValue', order.amount);
+    // 価格
+    await this.client.setValue('#marketOrderPrice', order.price);
+    await this.client.setValue('*[type="password"]', acc.otp);
+    // 確認画面を省略する
+    await this.client.click('#ormit_checkbox');
+    // 注文
+    await this.client.click('#ormit_sbm');
   }
 
   async marginBuy(order: types.LimitOrder) {
     Log.system.info(`信用买入[启动]: ${util.inspect(order, false, null)}`);
-    await this.client.click('.stockm #buy') // // 売買区分->買建
-      .waitForExist('#mgnMaturityCd_system_6m', 5000)
-      // 信用区分（期限）-> 制度（6ヶ月）
-      .click('#mgnMaturityCd_system_6m')
-      // 数量( 株/口)
-      .setValue('#orderValue', order.amount)
-      // 価格
-      .setValue('#marketOrderPrice', order.price)
-      .setValue('*[type="password"]', acc.otp)
-      // 確認画面を省略する
-      .click('#ormit_checkbox')
-      // 注文
-      .click('#ormit_sbm');
+    // 売買区分->買建
+    await this.client.click('.stockm #buy')
+    await this.client.waitForExist('#mgnMaturityCd_system_6m', 5000);
+    // 信用区分（期限）-> 制度（6ヶ月）
+    await this.client.click('#mgnMaturityCd_system_6m');
+    // 数量( 株/口)
+    await this.client.setValue('#orderValue', order.amount);
+    // 価格
+    await this.client.setValue('#marketOrderPrice', order.price);
+    await this.client.setValue('*[type="password"]', acc.otp);
+    // 確認画面を省略する
+    await this.client.click('#ormit_checkbox');
+    // 注文
+    await this.client.click('#ormit_sbm');
     Log.system.info(`信用买入[终了]`);
     // 返回信用界面
-    return this.toMargin(order.symbol, true);
+    await this.toMargin(order.symbol, true);
   }
 
   async marginSell(order: types.LimitOrder) {
     Log.system.info(`信用卖出[启动]: ${util.inspect(order, false, null)}`);
     // 返済注文(1:新規注文,2:返済注文,3:現引現渡注文,4:注文照会・訂正・取消)
     // 返済注文按钮
-    const elements = await this.client.click('.nav-tab-01 li:nth-child(2)')
-      .waitForExist('#special_table .tbl-data-01>tbody>tr:last-child img[src="/member/images/btn-repayment-02.gif"]', 5000)
-      .isVisible('.s1-form-login__btn').then(res => console.log('.s1-form-login__btn:', res))
-      .click('#special_table .tbl-data-01>tbody>tr:last-child img[src="/member/images/btn-repayment-02.gif"]')
-      .elements('input[name^="chkRepay"]');
+    await this.client.click('.nav-tab-01 li:nth-child(2)')
+    await this.client.waitForExist('#special_table .tbl-data-01>tbody>tr:last-child img[src="/member/images/btn-repayment-02.gif"]', 5000)
+    // ???
+    // .isVisible('.s1-form-login__btn').then(res => console.log('.s1-form-login__btn:', res))
+    await this.client.click('#special_table .tbl-data-01>tbody>tr:last-child img[src="/member/images/btn-repayment-02.gif"]')
+    // 等待返済注文页面的注文按钮出现
+    await this.client.waitForExist('#ormit_sbm', 5000)
+    const elements = await this.client.elements('input[name^="chkRepay"]');
     if (!elements.value) {
       Log.system.info(`无可卖股票，取消执行，信用卖出[终了]`);
       // 返回信用界面
-      return this.toMargin(order.symbol, true);
+      await this.toMargin(order.symbol, true);
+      return;
     }
     // 获取已购买股票数量
     const len = elements.value.length;
@@ -176,44 +180,46 @@ export class WebDriver {
 
         // 选择最后一个持仓股票
         await this.client.click('#chkRepay' + (acc.longLen))
-          // 価格（卖价减1）
-          .setValue('#marketOrderPrice', order.price)
-          .setValue('*[type="password"]', acc.otp)
-          // 確認画面を省略する
-          .click('#ormit_checkbox')
-          // 注文
-          .click('#ormit_sbm');
+        // 価格（卖价减1）
+        await this.client.setValue('#marketOrderPrice', order.price)
+        await this.client.setValue('*[type="password"]', acc.otp)
+        // 確認画面を省略する
+        await this.client.click('#ormit_checkbox')
+        // 注文
+        await this.client.click('#ormit_sbm');
         Log.system.info(`信用卖出[终了]`);
       } else {
         Log.system.info(`卖单损益额：${profit},建日：${buyDate}`);
         Log.system.info(`取消执行，信用卖出[终了]`);
       }
     } else {
-      Log.system.info(`无短线卖单，取消执行，信用卖出[终了]`);
+      Log.system.info(`已购买股票数量：${len},长线持有股票数量：${acc.longLen}，无短线卖单。`);
+      Log.system.info(`取消执行，信用卖出[终了]`);
     }
     // 返回信用界面
-    return this.toMargin(order.symbol, true);
+    await this.toMargin(order.symbol, true);
   }
 
   // 信用订单取消
   async marginCancel(cancelOrder: types.Cancel) {
     Log.system.info(`信用订单取消[启动]: ${util.inspect(cancelOrder, false, null)}`);
-    const elements = await this.client.click('.nav-tab-01 li:nth-child(4)')
-      // 检索取消按钮图标
-      .elements('img[src="/member/images/i_arrow_08.gif"]');
+    await this.client.click('.nav-tab-01 li:nth-child(4)')
+    // 检索取消按钮图标
+    const elements = await this.client.elements('img[src="/member/images/i_arrow_08.gif"]');
     if (!elements.value) {
       Log.system.info(`无可取消订单，信用订单取消[终了]`);
       // 返回信用界面
-      return this.toMargin('', true);
+      await this.toMargin('', true);
+      return;
     }
     await this.client.execute('$(".tbl-data-padding3 .mgn-order_list-font-size'
       + ' img[src=\'/member/images/i_arrow_08.gif\']:last~a")[0].click()') // 取消
-      .setValue('*[type="password"]', acc.otp)
-      // 取消注文
-      .click('#sbm');
+    await this.client.setValue('*[type="password"]', acc.otp)
+    // 取消注文
+    await this.client.click('#sbm');
     Log.system.info(`信用订单取消[终了]`);
     // 返回信用界面
-    return this.toMargin('', true);
+    await this.toMargin('', true);
   }
 
   async getTradeInfo() {
@@ -244,15 +250,14 @@ export class WebDriver {
   async errLogin() {
     const url = await this.client.getUrl();
     if (url === errUrl) {
-      return this.client
-        .setValue('#form-login-id', acc.id)
-        .setValue('#form-login-pass', acc.pass)
-        .click('.s1-form-login__btn');
+      await this.client.setValue('#form-login-id', acc.id)
+      await this.client.setValue('#form-login-pass', acc.pass)
+      await this.client.click('.s1-form-login__btn');
     }
   }
 
-  end() {
+  async end() {
     clearInterval(this.autoRefresh);
-    this.client.end();
+    await this.client.end();
   }
 }

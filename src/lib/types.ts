@@ -8,17 +8,8 @@ export enum OrderType {
   Market = 'market'
 }
 
-/**
- *  交易类型
- */
 export enum TradeType {
-  /**
-   *  现货交易
-   */
   Spot = 'spot',
-  /**
-   *  信用交易
-   */
   Margin = 'margin'
 }
 
@@ -42,13 +33,13 @@ export interface BaseOrder extends Event {
   tradeType: TradeType,
   orderType: OrderType,
   side: OrderSide,
-  price?: string,
-  amount: string
+  price?: number,
+  amount: number
 }
 
 export interface LimitOrder extends BaseOrder {
   orderType: OrderType.Limit,
-  price: string
+  price: number
 }
 
 export interface MarketOrder extends BaseOrder {
