@@ -39,8 +39,8 @@ export class WebDriver {
   async login() {
     Log.system.info('登录乐天账户[启动]');
     await this.client.url('https://www.rakuten-sec.co.jp/');
-    await this.client.setValue('#form-login-id', acc.id)
-    await this.client.setValue('#form-login-pass', acc.pass);;
+    await this.client.setValue('#form-login-id', acc.id);
+    await this.client.setValue('#form-login-pass', acc.pass);
     await this.client.execute('document.getElementsByClassName("s1-form-login__btn")[0].click()');
     await this.client.waitForExist('#str-main-inner', 1000);
     // XXX　様のホームページ
@@ -151,11 +151,33 @@ export class WebDriver {
     Log.system.info(`信用卖出[启动]: ${util.inspect(order, false, null)}`);
     // 返済注文(1:新規注文,2:返済注文,3:現引現渡注文,4:注文照会・訂正・取消)
     // 返済注文按钮
-    await this.client.click('.nav-tab-01 li:nth-child(2)')
-    await this.client.waitForExist('#special_table .tbl-data-01>tbody>tr:last-child img[src="/member/images/btn-repayment-02.gif"]', 5000)
-    // ???
-    // .isVisible('.s1-form-login__btn').then(res => console.log('.s1-form-login__btn:', res))
-    await this.client.click('#special_table .tbl-data-01>tbody>tr:last-child img[src="/member/images/btn-repayment-02.gif"]')
+    await this.client.click('.nav-tab-01 li:nth-child(2)');
+    await this.client.waitForExist('#special_table .tbl-data-01>tbody>tr:last-child img[src="/member/images/btn-repayment-02.gif"]', 5000);
+
+    // 获取可卖股票名称
+    const stockNames = await this.client.getText('#special_table .tbl-data-01>tbody>tr>td:nth-child(2)')
+    // 股票索引
+    let index = -1;
+    if (Array.isArray(stockNames)) {
+      stockNames.forEach((name, i) => {
+        if (name.includes(order.symbol)) {
+          index = i + 2;
+        }
+      });
+    } else {
+      if (stockNames.includes(order.symbol)) {
+        // 去掉前两个tr
+        index = 2;
+      }
+    }
+    if (index === -1) {
+      Log.system.info(`无可卖股票，取消执行，信用卖出[终了]`);
+      // 返回信用界面
+      await this.toMargin(order.symbol, true);
+      return;
+    }
+
+    await this.client.click(`#special_table .tbl-data-01>tbody>tr:nth-child(${index}) img[src="/member/images/btn-repayment-02.gif"]`);
     // 等待返済注文页面的注文按钮出现
     await this.client.waitForExist('#ormit_sbm', 5000)
     const elements = await this.client.elements('input[name^="chkRepay"]');

@@ -19,7 +19,7 @@ export enum EventType {
 }
 
 export interface Event {
-  eventId: number,
+  eventId?: number,
   eventType: EventType
 }
 
