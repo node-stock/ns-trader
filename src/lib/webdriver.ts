@@ -1,11 +1,11 @@
 import * as webdriverio from 'webdriverio';
-import * as types from './types';
+import * as types from 'ns-types';
 import * as numeral from 'numeral';
 import * as moment from 'moment';
 import { Log } from 'ns-common';
 import * as util from 'util';
 
-const acc = require('../../config/config').account;
+const acc = require('config').account;
 const errUrl = 'https://www.rakuten-sec.co.jp/session_error.html';
 
 export class WebDriver {
@@ -69,6 +69,7 @@ export class WebDriver {
     await this.client.setValue('#ss-02', symbol || this.symbol);
     // 検索
     await this.client.click('.img-ipad');
+    await this.client.waitForExist('#autoUpdateButtonOn', 5000);
     const res = await this.client.isVisible('#autoUpdateButtonOn');
 
     // 股价自动更新未激活时，自动激活
@@ -266,6 +267,7 @@ export class WebDriver {
     tradeInfo.askOver = await this.client.getText('#yori_table_update_ask_volume_over');
     // 卖盘总量
     tradeInfo.bidUnder = await this.client.getText('#yori_table_update_bid_volume_under');
+    return tradeInfo;
   }
 
   // 错误界面重新登录

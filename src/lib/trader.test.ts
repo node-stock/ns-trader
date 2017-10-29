@@ -1,35 +1,30 @@
 import { WebTrader } from './trader';
-import * as types from './types';
+import * as types from 'ns-types';
 import * as assert from 'power-assert';
 
-let trader: WebTrader;
-const order: types.LimitOrder = {
-  eventId: 1234,
-  eventType: types.EventType.Order,
-  tradeType: types.TradeType.Margin,
-  orderType: types.OrderType.Limit,
-  side: types.OrderSide.Buy,
-  symbol: '6553',
-  price: 2100,
-  amount: 100
-};
+const trader = new WebTrader('6553');
 
 const testInit = async (done: () => void) => {
 
-  trader = new WebTrader(order.symbol);
   await trader.init();
   assert(true);
   done();
 }
 
 const testMarginBuy = async (done: () => void) => {
-  await trader.buy(order);
+  trader.order.price = 2100
+  await trader.buy(<types.LimitOrder>Object.assign({
+    side: types.OrderSide.Buy,
+    price: 2100
+  }, trader.order));
   done();
 }
 
 const testMarginSell = async (done: () => void) => {
-  order.side = types.OrderSide.Sell;
-  await trader.sell(order);
+  await trader.sell(<types.LimitOrder>Object.assign({
+    side: types.OrderSide.Sell,
+    price: 2100
+  }, trader.order));
   done();
 }
 

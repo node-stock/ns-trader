@@ -1,5 +1,5 @@
 import { WebDriver } from './webdriver';
-import * as types from './types';
+import * as types from 'ns-types';
 import * as assert from 'power-assert';
 
 let wd: WebDriver;

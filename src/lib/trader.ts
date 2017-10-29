@@ -1,12 +1,21 @@
 import { WebDriver } from './webdriver';
-import * as types from './types';
+import * as types from 'ns-types';
 import { Log } from 'ns-common';
 
 export class Trader {
+  order: types.BaseOrder;
   protected symbol: string;
 
   constructor(symbol: string) {
     this.symbol = symbol;
+    this.order = {
+      eventType: types.EventType.Order,
+      tradeType: types.TradeType.Margin,
+      orderType: types.OrderType.Limit,
+      side: types.OrderSide.Buy,
+      symbol: this.symbol,
+      amount: 100
+    }
   }
 
   buy(order: types.Order) { }
@@ -71,6 +80,10 @@ export class WebTrader extends Trader {
     } catch (err) {
       Log.system.error(`执行撤单[异常]：${err.stack}`);
     }
+  }
+
+  async getTradeInfo() {
+    return await this.webDriver.getTradeInfo();
   }
 
   async end() {
