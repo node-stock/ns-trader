@@ -2,6 +2,8 @@ import { WebDriver } from './webdriver';
 import * as types from 'ns-types';
 import { Log } from 'ns-common';
 
+const config = require('config').trader;
+
 export class Trader {
   order: types.BaseOrder;
   protected symbol: string;
@@ -30,11 +32,17 @@ export class WebTrader extends Trader {
 
   constructor(symbol: string = '6553') {
     super(symbol);
-    this.webDriver = new WebDriver(this.symbol);
+    if (!config.test) {
+      this.webDriver = new WebDriver(this.symbol);
+    }
   }
 
   async init() {
     try {
+      if (config.test) {
+        Log.system.info('测试模式，不执行WebTrader初期化');
+        return;
+      }
       Log.system.info('初期化WebTrader[启动]');
       await this.webDriver.init();
       Log.system.info('初期化WebTrader[终了]');
@@ -45,6 +53,10 @@ export class WebTrader extends Trader {
 
   async buy(order: types.Order) {
     try {
+      if (config.test) {
+        Log.system.info('测试模式，不执行WebTrader买入', order);
+        return;
+      }
       Log.system.info('执行买入[启动]');
       // 信用交易
       if (order.tradeType === types.TradeType.Margin) {
@@ -58,6 +70,10 @@ export class WebTrader extends Trader {
 
   async sell(order: types.Order) {
     try {
+      if (config.test) {
+        Log.system.info('测试模式，不执行WebTrader卖出', order);
+        return;
+      }
       Log.system.info('执行卖出[启动]');
       // 信用交易
       if (order.tradeType === types.TradeType.Margin) {
@@ -71,6 +87,10 @@ export class WebTrader extends Trader {
 
   async cancel(cancelOrder: types.Cancel) {
     try {
+      if (config.test) {
+        Log.system.info('测试模式，不执行WebTrader撤单', cancelOrder);
+        return;
+      }
       Log.system.info('执行撤单[启动]');
       // 信用交易
       if (cancelOrder.tradeType === types.TradeType.Margin) {
@@ -83,11 +103,17 @@ export class WebTrader extends Trader {
   }
 
   async getTradeInfo() {
-    return await this.webDriver.getTradeInfo();
+    if (!config.test) {
+      return await this.webDriver.getTradeInfo();
+    }
   }
 
   async end() {
     try {
+      if (config.test) {
+        Log.system.info('测试模式，不执行关闭WebTrader');
+        return;
+      }
       Log.system.info('关闭WebTrader[启动]');
       await this.webDriver.end();
       Log.system.info('关闭WebTrader[终了]');
