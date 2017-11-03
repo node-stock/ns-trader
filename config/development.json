@@ -7,6 +7,7 @@
     "longLen": 1
   },
   "trader": {
-    "test": true
+    "test": true,
+    "symbol": 6553
   }
 }

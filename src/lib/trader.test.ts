@@ -2,7 +2,8 @@ import { WebTrader } from './trader';
 import * as types from 'ns-types';
 import * as assert from 'power-assert';
 
-const trader = new WebTrader('6553');
+const config = require('config');
+const trader = new WebTrader(config);
 
 const testInit = async (done: () => void) => {
 
