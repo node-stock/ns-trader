@@ -5,7 +5,7 @@
 /node_modules
 /dist/**/*.test.js
 /dist/**/*.test.d.ts
-/config/test.json
+/config/test.toml
 npm-debug.log
 .idea
 .vscode

@@ -1,0 +1,26 @@
+###
+### [account]
+###
+### 账户相关配置
+###
+[account]
+  # 实际券商账号
+  id = "xxx6"
+  # 数据库中账号
+  userId = "stoc"
+  # 登录密码
+  pass = "passx"
+  # 支付密码
+  otp = "xxxx"
+  # 长线持仓数量
+  longLen = 1
+###
+### [trader]
+###
+### trader相关配置
+###
+[trader]
+  # 测试模式时 不执行真实交易操作
+  test = true
+  # Web交易者初始化股票界面
+  symbol = 6553
