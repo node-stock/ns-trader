@@ -1,21 +1,23 @@
 import { WebDriver } from './webdriver';
 import * as types from 'ns-types';
 import { Log } from 'ns-common';
-
-const config = require('config').trader;
+import * as assert from 'power-assert';
 
 export class Trader {
   order: types.BaseOrder;
-  protected symbol: string;
+  protected config: { [Attr: string]: any };
 
-  constructor(symbol: string) {
-    this.symbol = symbol;
+  constructor(config: { [Attr: string]: any }) {
+    assert(config, 'config required.');
+    assert(config.trader, 'config.trader required.');
+    assert(config.account, 'config.account required.');
+    this.config = config;
     this.order = {
       eventType: types.EventType.Order,
       tradeType: types.TradeType.Margin,
       orderType: types.OrderType.Limit,
       side: types.OrderSide.Buy,
-      symbol: this.symbol,
+      symbol: this.config.trader.symbol,
       amount: 100
     }
   }
@@ -30,16 +32,16 @@ export class Trader {
 export class WebTrader extends Trader {
   webDriver: WebDriver;
 
-  constructor(symbol: string = '6553') {
-    super(symbol);
-    if (!config.test) {
-      this.webDriver = new WebDriver(this.symbol);
+  constructor(config: { [Attr: string]: any }) {
+    super(config);
+    if (!this.config.trader.test) {
+      this.webDriver = new WebDriver(this.config);
     }
   }
 
   async init() {
     try {
-      if (config.test) {
+      if (this.config.trader.test) {
         Log.system.info('测试模式，不执行WebTrader初期化');
         return;
       }
@@ -53,7 +55,7 @@ export class WebTrader extends Trader {
 
   async buy(order: types.Order) {
     try {
-      if (config.test) {
+      if (this.config.trader.test) {
         Log.system.info('测试模式，不执行WebTrader买入', order);
         return;
       }
@@ -70,7 +72,7 @@ export class WebTrader extends Trader {
 
   async sell(order: types.Order) {
     try {
-      if (config.test) {
+      if (this.config.trader.test) {
         Log.system.info('测试模式，不执行WebTrader卖出', order);
         return;
       }
@@ -87,7 +89,7 @@ export class WebTrader extends Trader {
 
   async cancel(cancelOrder: types.Cancel) {
     try {
-      if (config.test) {
+      if (this.config.trader.test) {
         Log.system.info('测试模式，不执行WebTrader撤单', cancelOrder);
         return;
       }
@@ -103,14 +105,14 @@ export class WebTrader extends Trader {
   }
 
   async getTradeInfo() {
-    if (!config.test) {
+    if (!this.config.trader.test) {
       return await this.webDriver.getTradeInfo();
     }
   }
 
   async end() {
     try {
-      if (config.test) {
+      if (this.config.trader.test) {
         Log.system.info('测试模式，不执行关闭WebTrader');
         return;
       }

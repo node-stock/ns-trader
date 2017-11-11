@@ -2,6 +2,8 @@ import { WebDriver } from './webdriver';
 import * as types from 'ns-types';
 import * as assert from 'power-assert';
 
+const config = require('config');
+
 let wd: WebDriver;
 const order: types.LimitOrder = {
   eventId: 1234,
@@ -16,7 +18,7 @@ const order: types.LimitOrder = {
 
 const testInit = async (done: () => void) => {
 
-  wd = new WebDriver(order.symbol);
+  wd = new WebDriver(config);
   await wd.init();
   assert(true);
   done();

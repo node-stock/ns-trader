@@ -3,18 +3,22 @@ import * as types from 'ns-types';
 import * as numeral from 'numeral';
 import * as moment from 'moment';
 import { Log } from 'ns-common';
+import * as assert from 'power-assert';
 import * as util from 'util';
-
-const acc = require('config').account;
 const errUrl = 'https://www.rakuten-sec.co.jp/session_error.html';
 
 export class WebDriver {
+  private account: { [Attr: string]: any };
   symbol: string;
   client: webdriverio.Client<void>;
   autoRefresh: NodeJS.Timer;
 
-  constructor(symbol: string) {
-    this.symbol = symbol;
+  constructor(config: { [Attr: string]: any }) {
+    assert(config, 'config required.');
+    assert(config.trader, 'config.trader required.');
+    assert(config.account, 'config.account required.');
+    this.symbol = config.trader.symbol;
+    this.account = config.account;
     this.client = webdriverio.remote({
       desiredCapabilities: {
         browserName: 'chrome'
@@ -39,8 +43,8 @@ export class WebDriver {
   async login() {
     Log.system.info('登录乐天账户[启动]');
     await this.client.url('https://www.rakuten-sec.co.jp/');
-    await this.client.setValue('#form-login-id', acc.id);
-    await this.client.setValue('#form-login-pass', acc.pass);
+    await this.client.setValue('#form-login-id', this.account.id);
+    await this.client.setValue('#form-login-pass', this.account.pass);
     await this.client.execute('document.getElementsByClassName("s1-form-login__btn")[0].click()');
     await this.client.waitForExist('#str-main-inner', 1000);
     // XXX　様のホームページ
@@ -92,7 +96,7 @@ export class WebDriver {
     await this.client.click('.ord_jp_req_search input[src="/member/images/btn-disp.png"]');
     // 取消
     await this.client.click('a=取消');
-    await this.client.setValue('*[type="password"]', acc.otp);
+    await this.client.setValue('*[type="password"]', this.account.otp);
     // 取消注文
     await this.client.click('#sbm');
     /*// 銘柄名･銘柄コード
@@ -120,7 +124,7 @@ export class WebDriver {
     await this.client.setValue('#orderValue', order.amount);
     // 価格
     await this.client.setValue('#marketOrderPrice', order.price);
-    await this.client.setValue('*[type="password"]', acc.otp);
+    await this.client.setValue('*[type="password"]', this.account.otp);
     // 確認画面を省略する
     await this.client.click('#ormit_checkbox');
     // 注文
@@ -138,7 +142,7 @@ export class WebDriver {
     await this.client.setValue('#orderValue', order.amount);
     // 価格
     await this.client.setValue('#marketOrderPrice', order.price);
-    await this.client.setValue('*[type="password"]', acc.otp);
+    await this.client.setValue('*[type="password"]', this.account.otp);
     // 確認画面を省略する
     await this.client.click('#ormit_checkbox');
     // 注文
@@ -191,7 +195,7 @@ export class WebDriver {
     // 获取已购买股票数量
     const len = elements.value.length;
     // 有短期持仓股票时
-    if (len > acc.longLen) {
+    if (len > this.account.longLen) {
       // 获取卖单损益额
       const res = await this.client.getText('#form > table:nth-child(17) > tbody > tr:nth-child(1)' +
         ' > td:nth-child(1) > table > tbody > tr:last-child');
@@ -202,10 +206,10 @@ export class WebDriver {
       if (profit > 1000 && moment().format('YYYY/MM/DD') === buyDate) {
 
         // 选择最后一个持仓股票
-        await this.client.click('#chkRepay' + (acc.longLen))
+        await this.client.click('#chkRepay' + (this.account.longLen))
         // 価格（卖价减1）
         await this.client.setValue('#marketOrderPrice', order.price)
-        await this.client.setValue('*[type="password"]', acc.otp)
+        await this.client.setValue('*[type="password"]', this.account.otp)
         // 確認画面を省略する
         await this.client.click('#ormit_checkbox')
         // 注文
@@ -216,7 +220,7 @@ export class WebDriver {
         Log.system.info(`取消执行，信用卖出[终了]`);
       }
     } else {
-      Log.system.info(`已购买股票数量：${len},长线持有股票数量：${acc.longLen}，无短线卖单。`);
+      Log.system.info(`已购买股票数量：${len},长线持有股票数量：${this.account.longLen}，无短线卖单。`);
       Log.system.info(`取消执行，信用卖出[终了]`);
     }
     // 返回信用界面
@@ -237,7 +241,7 @@ export class WebDriver {
     }
     await this.client.execute('$(".tbl-data-padding3 .mgn-order_list-font-size'
       + ' img[src=\'/member/images/i_arrow_08.gif\']:last~a")[0].click()') // 取消
-    await this.client.setValue('*[type="password"]', acc.otp)
+    await this.client.setValue('*[type="password"]', this.account.otp)
     // 取消注文
     await this.client.click('#sbm');
     Log.system.info(`信用订单取消[终了]`);
@@ -274,8 +278,8 @@ export class WebDriver {
   async errLogin() {
     const url = await this.client.getUrl();
     if (url === errUrl) {
-      await this.client.setValue('#form-login-id', acc.id)
-      await this.client.setValue('#form-login-pass', acc.pass)
+      await this.client.setValue('#form-login-id', this.account.id)
+      await this.client.setValue('#form-login-pass', this.account.pass)
       await this.client.click('.s1-form-login__btn');
     }
   }

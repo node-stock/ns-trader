@@ -58,6 +58,6 @@ typings/
 .env
 
 dist
-config/test.json
+config/test.toml
 .history
 .vscode
