@@ -1,6 +1,6 @@
 {
   "name": "ns-trader",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "node-stock trader module",
   "repository": {
     "type": "git",
@@ -21,10 +21,10 @@
   "dependencies": {
     "moment": "^2.19.1",
     "ns-common": "0.0.11",
-    "ns-types": "0.0.5",
+    "ns-types": "0.0.19",
     "numeral": "^2.0.6",
     "toml": "^2.3.3",
-    "webdriverio": "^4.8.0"
+    "webdriverio": "^4.9.11"
   },
   "devDependencies": {
     "@types/config": "0.0.32",
