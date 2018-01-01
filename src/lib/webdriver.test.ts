@@ -8,12 +8,14 @@ let wd: WebDriver;
 const order: types.LimitOrder = {
   eventId: 1234,
   eventType: types.EventType.Order,
+  symbolType: types.SymbolType.stock,
   tradeType: types.TradeType.Margin,
   orderType: types.OrderType.Limit,
   side: types.OrderSide.Buy,
   symbol: '6553',
-  price: 2200,
-  amount: 100
+  price: '2200',
+  amount: '100',
+  backtest: '1'
 };
 
 const testInit = async (done: () => void) => {

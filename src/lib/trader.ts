@@ -12,13 +12,13 @@ export class Trader {
     assert(config.trader, 'config.trader required.');
     assert(config.account, 'config.account required.');
     this.config = config;
-    this.order = {
+    this.order = <types.Order>{
       eventType: types.EventType.Order,
       tradeType: types.TradeType.Margin,
       orderType: types.OrderType.Limit,
       side: types.OrderSide.Buy,
       symbol: this.config.trader.symbol,
-      amount: 100
+      amount: '100'
     }
   }
 

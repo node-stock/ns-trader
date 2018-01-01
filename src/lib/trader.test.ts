@@ -13,7 +13,7 @@ const testInit = async (done: () => void) => {
 }
 
 const testMarginBuy = async (done: () => void) => {
-  trader.order.price = 2100
+  trader.order.price = '2100';
   await trader.buy(<types.LimitOrder>Object.assign(trader.order, {
     side: types.OrderSide.Buy,
     price: 2100
