@@ -5,7 +5,8 @@ import * as assert from 'power-assert';
 const config = require('config');
 
 let wd: WebDriver;
-const order: types.LimitOrder = {
+const order: types.Order = {
+  account_id: 'test',
   eventId: 1234,
   eventType: types.EventType.Order,
   symbolType: types.SymbolType.stock,

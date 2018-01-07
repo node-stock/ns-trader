@@ -4,7 +4,7 @@ import { Log } from 'ns-common';
 import * as assert from 'power-assert';
 
 export class Trader {
-  order: types.BaseOrder;
+  order: types.Order;
   protected config: { [Attr: string]: any };
 
   constructor(config: { [Attr: string]: any }) {
@@ -62,7 +62,7 @@ export class WebTrader extends Trader {
       Log.system.info('执行买入[启动]');
       // 信用交易
       if (order.tradeType === types.TradeType.Margin) {
-        await this.webDriver.marginBuy(<types.LimitOrder>order);
+        await this.webDriver.marginBuy(<types.Order>order);
       }
       Log.system.info('执行买入[终了]');
     } catch (err) {
@@ -79,7 +79,7 @@ export class WebTrader extends Trader {
       Log.system.info('执行卖出[启动]');
       // 信用交易
       if (order.tradeType === types.TradeType.Margin) {
-        await this.webDriver.marginSell(<types.LimitOrder>order);
+        await this.webDriver.marginSell(<types.Order>order);
       }
       Log.system.info('执行卖出[终了]');
     } catch (err) {

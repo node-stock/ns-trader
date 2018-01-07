@@ -108,7 +108,7 @@ export class WebDriver {
 
   }
 
-  async spotBuy(order: types.LimitOrder) {
+  async spotBuy(order: types.Order) {
     await this.client.waitForExist('#gmenu_domestic_stock', 5000);
     // 国内株式
     await this.client.click('#gmenu_domestic_stock');
@@ -131,7 +131,7 @@ export class WebDriver {
     await this.client.click('#ormit_sbm');
   }
 
-  async marginBuy(order: types.LimitOrder) {
+  async marginBuy(order: types.Order) {
     Log.system.info(`信用买入[启动]: ${util.inspect(order, false, null)}`);
     // 売買区分->買建
     await this.client.click('.stockm #buy')
@@ -152,7 +152,7 @@ export class WebDriver {
     await this.toMargin(order.symbol, true);
   }
 
-  async marginSell(order: types.LimitOrder) {
+  async marginSell(order: types.Order) {
     Log.system.info(`信用卖出[启动]: ${util.inspect(order, false, null)}`);
     // 返済注文(1:新規注文,2:返済注文,3:現引現渡注文,4:注文照会・訂正・取消)
     // 返済注文按钮
